@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Prediction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            width: 50%; /* Займає половину сторінки */
+            max-width: 800px;
+            overflow-y: auto;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+            font-size: 24px;
+            text-align: center;
+        }
+        form {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        label {
+            font-size: 14px;
+        }
+        .form-group {
+            width: 48%;
+            margin-bottom: 10px;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .error {
+            color: red;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        button {
+            padding: 10px;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 20px;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Loan Prediction Form</h1>
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+        <form method="POST" action="/predict/">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="Gender">Gender:</label>
+                <select name="Gender">
+                    <option value="">Select</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="Married">Married:</label>
+                <select name="Married">
+                    <option value="">Select</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="Dependents">Dependents:</label>
+                <input type="text" name="Dependents">
+            </div>
+            <div class="form-group">
+                <label for="Education">Education:</label>
+                <select name="Education">
+                    <option value="">Select</option>
+                    <option value="Graduate">Graduate</option>
+                    <option value="Not Graduate">Not Graduate</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="Self_Employed">Self Employed:</label>
+                <select name="Self_Employed">
+                    <option value="">Select</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="ApplicantIncome">Applicant Income:</label>
+                <input type="number" name="ApplicantIncome">
+            </div>
+            <div class="form-group">
+                <label for="CoapplicantIncome">Coapplicant Income:</label>
+                <input type="number" name="CoapplicantIncome">
+            </div>
+            <div class="form-group">
+                <label for="LoanAmount">Loan Amount:</label>
+                <input type="number" name="LoanAmount">
+            </div>
+            <div class="form-group">
+                <label for="Loan_Amount_Term">Loan Amount Term:</label>
+                <input type="number" name="Loan_Amount_Term">
+            </div>
+            <div class="form-group">
+                <label for="Credit_History">Credit History:</label>
+                <select name="Credit_History">
+                    <option value="1.0">Yes</option>
+                    <option value="0.0">No</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="Property_Area">Property Area:</label>
+                <select name="Property_Area">
+                    <option value="Urban">Urban</option>
+                    <option value="Rural">Rural</option>
+                    <option value="Semiurban">Semiurban</option>
+                </select>
+            </div>
+            <button type="submit">Predict</button>
+        </form>
+    </div>
+</body>
+</html>
+
+
