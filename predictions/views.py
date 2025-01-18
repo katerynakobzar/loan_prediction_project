@@ -39,7 +39,7 @@ def predict(request):
             # Створення DataFrame
             input_df = pd.DataFrame([input_data])
             print(f"DataFrame для прогнозування: {input_df}")
-
+            print(f"Типи даних в DataFrame:\n{input_df.dtypes}")
             # Передбачення
             prediction = model.predict(input_df)[0]
             result = 'Approved' if prediction == 'Y' else 'Not Approved'
