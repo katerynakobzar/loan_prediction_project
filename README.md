@@ -130,9 +130,9 @@ def feature_importance_view(request):
 Тестування проекту здійснюється за допомогою модуля Django TestCase.
 
 Для запуску тестів використовуйте команду:
-    ```bash
+```bash
     python -m unittest discover
-    ```
+  ```
 
 ### Функція def setUp(self):
     # Ініціалізація клієнта для тестування HTTP-запитів
