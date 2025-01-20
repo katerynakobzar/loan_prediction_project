@@ -2,13 +2,16 @@ from django.shortcuts import render
 from django.http import JsonResponse
 import os
 import joblib
-import pandas as pd
 import json
 import plotly.graph_objects as go
+from .utils.loan_prediction import predict_with_rule
 
-# Шлях до моделі
 MODEL_PATH = r'../loan_prediction_project/predictions/model/trained_model.pkl'
 model = joblib.load(MODEL_PATH)
+
+X_train_columns = ['Loan_ID', 'Gender', 'Married', 'Dependents', 'Education', 'Self_Employed', 'ApplicantIncome',
+                   'CoapplicantIncome', 'LoanAmount', 'Loan_Amount_Term', 'Credit_History', 'Property_Area']
+
 
 def predict(request):
     print(f"Метод запиту: {request.method}")
@@ -16,9 +19,8 @@ def predict(request):
         try:
             print("Отримано POST-запит")
 
-            # Отримання значень з POST-запиту та перевірка на коректність
             input_data = {
-                'Loan_ID': 'NA',  # Додаємо колонку Loan_ID з нульовим значенням
+                'Loan_ID': 'NA',
                 'Gender': request.POST.get('Gender'),
                 'Married': request.POST.get('Married'),
                 'Dependents': request.POST.get('Dependents'),
@@ -32,20 +34,15 @@ def predict(request):
                 'Property_Area': request.POST.get('Property_Area')
             }
             print(f"Вхідні дані: {input_data}")
-            # Перевірка, чи всі значення заповнені
+
             for key, value in input_data.items():
                 if value is None or value == '':
-                 return render(request, 'predictions/predict.html',{'error': 'Усі поля повинні бути заповнені'})
-            # Створення DataFrame
-            input_df = pd.DataFrame([input_data])
-            print(f"DataFrame для прогнозування: {input_df}")
-            print(f"Типи даних в DataFrame:\n{input_df.dtypes}")
-            # Передбачення
-            prediction = model.predict(input_df)[0]
-            result = 'Approved' if prediction == 'Y' else 'Not Approved'
+                    return render(request, 'predictions/predict.html', {'error': 'Усі поля '
+                                                                                 'повинні бути заповнені'})
+
+            result = predict_with_rule(input_data, model, X_train_columns)
             print(f"Результат прогнозування: {result}")
 
-            # Відображення результату
             return render(request, 'predictions/result.html', {'result': result})
         except Exception as e:
             print(f"Помилка: {str(e)}")
@@ -59,7 +56,7 @@ def predict(request):
 
 def safe_float(value):
     try:
-        return float(value) if value else 0.0
+        return float(value)if value else 0.0
     except ValueError:
         return 0.0  # Якщо не вдається перетворити значення в float, повертаємо 0.0
 
@@ -67,7 +64,6 @@ def safe_float(value):
 def feature_importance_view(request):
     print("Функція feature_importance_view викликана")
     try:
-        # Шлях до JSON з важливістю ознак
         feature_importance_path = os.path.join('model', 'feature_importance.json')
         print(f"Шлях до JSON: {feature_importance_path}")
 
@@ -77,7 +73,6 @@ def feature_importance_view(request):
         features = data['features']
         importances = data['importances']
 
-        # Створення графіка
         fig = go.Figure(
             go.Bar(
                 x=features,
@@ -92,11 +87,9 @@ def feature_importance_view(request):
             template='plotly_white'
         )
 
-        # Генерація HTML
         plot_html = fig.to_html(full_html=False)
         print("Графік згенеровано успішно")
 
-        # Абсолютний шлях до шаблону
         template_path = r'C:\Users\kobza\PycharmProjects\pythonProject2\loan_prediction_project\predictions\templates\predictions\feature_importance.html'
         print(f"Шлях до шаблону: {template_path}")
 
@@ -104,5 +97,8 @@ def feature_importance_view(request):
     except Exception as e:
         print(f"Помилка: {str(e)}")
         return JsonResponse({'error': str(e)}, status=400)
+
+
+
 
 
