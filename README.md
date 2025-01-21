@@ -103,10 +103,10 @@ Income_Category — категоризація доходу на три груп
 
 
   ```corr_matrix = numeric_data.corr()
-  plt.figure(figsize=(12, 8))
-  sns.heatmap(corr_matrix, annot=True, fmt='.2f', cmap='coolwarm')
-  plt.title('Correlation Matrix')
-  plt.show() `
+    plt.figure(figsize=(12, 8))
+    sns.heatmap(corr_matrix, annot=True, fmt='.2f', cmap='coolwarm')
+    plt.title('Correlation Matrix')
+    plt.show() `
 ```
 
 
