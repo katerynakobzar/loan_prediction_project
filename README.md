@@ -9,8 +9,7 @@
 1. [Вимоги](#Вимоги)
 2. [Встановлення](#Встановлення)
 3. [Структура проекту](#Структура-проекту)
-4. [Функції та методи](#Функції-та-методи)
-5. [Тестування](#Тестування)
+4. [Тестування](#Тестування)
 
 ## Вимоги
 - Python 3.8+
@@ -19,6 +18,8 @@
 - scikit-learn
 - joblib
 - plotly
+- seaborn
+
 
 ## Встановлення
 1. Клонуйте репозиторій:
@@ -56,6 +57,123 @@
 Містить функції-обробники запитів:
 - `predict(request)`: Обробляє прогнозування кредиту на основі вхідних даних користувача.
 - `feature_importance_view(request)`: Відображає графік важливості ознак.
+- `safe_float`: Конвертує значення у float з перевіркою на помилки.
+### Функція `predict`
+
+Обробляє POST та GET запити для прогнозування схвалення кредиту.
+    
+Якщо запит метод POST, функція отримує дані з форми, створює DataFrame
+і виконує прогнозування за допомогою завантаженої моделі.
+Якщо запит метод GET, функція повертає порожню форму.
+    
+Параметри:
+request (HttpRequest): HTTP запит.
+    
+Повертає:
+HttpResponse: Відповідь з результатом прогнозування або форма.
+
+````
+def predict(request):
+    print(f"Метод запиту: {request.method}")
+    if request.method == 'POST':
+        try:
+            print("Отримано POST-запит")
+
+            input_data = {
+                'Loan_ID': 'NA',
+                'Gender': request.POST.get('Gender'),
+                'Married': request.POST.get('Married'),
+                'Dependents': request.POST.get('Dependents'),
+                'Education': request.POST.get('Education'),
+                'Self_Employed': request.POST.get('Self_Employed'),
+                'ApplicantIncome': safe_float(request.POST.get('ApplicantIncome')),
+                'CoapplicantIncome': safe_float(request.POST.get('CoapplicantIncome')),
+                'LoanAmount': safe_float(request.POST.get('LoanAmount')),
+                'Loan_Amount_Term': safe_float(request.POST.get('Loan_Amount_Term')),
+                'Credit_History': safe_float(request.POST.get('Credit_History')),
+                'Property_Area': request.POST.get('Property_Area')
+            }
+            print(f"Вхідні дані: {input_data}")
+
+            for key, value in input_data.items():
+                if value is None or value == '':
+                    return render(request, 'predictions/predict.html', {'error': 'Усі поля '
+                                                                                 'повинні бути заповнені'})
+
+            result = predict_with_rule(input_data, model, X_train_columns)
+            print(f"Результат прогнозування: {result}")
+
+            return render(request, 'predictions/result.html', {'result': result})
+        except Exception as e:
+            print(f"Помилка: {str(e)}")
+            return JsonResponse({'error': str(e)}, status=400)
+    elif request.method == 'GET':
+        print("Отримано GET-запит")
+        return render(request, 'predictions/predict.html')
+    print("Метод запиту не підтримується")
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
+`````
+### Функція safe_float
+
+Конвертує значення у float з перевіркою на помилки.
+
+````
+def safe_float(value):
+    try:
+        return float(value)if value else 0.0
+    except ValueError:
+        return 0.0  # Якщо не вдається перетворити значення в float, повертаємо 0.0
+````
+### Функція feature_importance_view
+
+Відображає графік важливості ознак моделі.
+    
+Завантажує важливість ознак з JSON файлу та створює графік
+за допомогою Plotly. Графік рендериться у HTML шаблоні.
+    
+Параметри:
+request (HttpRequest): HTTP запит.
+    
+Повертає:
+HttpResponse: Відповідь з графіком важливості ознак.
+
+````
+ def feature_importance_view(request):
+    print("Функція feature_importance_view викликана")
+    try:
+        feature_importance_path = os.path.join('model', 'feature_importance.json')
+        print(f"Шлях до JSON: {feature_importance_path}")
+           with open(feature_importance_path, 'r') as f:
+            data = json.load(f)
+
+        features = data['features']
+        importances = data['importances']
+
+        fig = go.Figure(
+            go.Bar(
+                x=features,
+                y=importances,
+                marker=dict(color='blue'),
+            )
+        )
+        fig.update_layout(
+            title='Feature Importance',
+            xaxis_title='Features',
+            yaxis_title='Importance',
+            template='plotly_white'
+        )
+
+        plot_html = fig.to_html(full_html=False)
+        print("Графік згенеровано успішно")
+
+        template_path = r'C:\Users\kobza\PycharmProjects\pythonProject2\loan_prediction_project\predictions\templates\predictions\feature_importance.html'
+        print(f"Шлях до шаблону: {template_path}")
+
+        return render(request, template_path, {'plot_html': plot_html})
+    except Exception as e:
+        print(f"Помилка: {str(e)}")
+        return JsonResponse({'error': str(e)}, status=400)`
+````
 
 ### predictions/templates/predictions/
 Містить HTML шаблони для відображення:
@@ -67,7 +185,35 @@
 ### predictions/utils/loan_prediction.py
 Містить функцію predict_with_rule, яка здійснює прогнозування кредиту з урахуванням правила 
 співвідношення доходу до щомісячного платежу..
+````
+    def predict_with_rule(input_data, model, X_train_columns):
+    df = pd.DataFrame([input_data])
 
+    df['Monthly_Payment'] = df['LoanAmount'] / df['Loan_Amount_Term']
+
+    if 'Total_Income' not in df.columns:
+        df['Total_Income'] = df['ApplicantIncome'] + df['CoapplicantIncome']
+
+    df = pd.get_dummies(df, drop_first=True)
+
+    missing_cols = list(set(X_train_columns) - set(df.columns))
+    for col in missing_cols:
+        df[col] = 0
+    df = df[X_train_columns]
+
+    if 'Total_Income' not in df.columns:
+        df['Total_Income'] = df['ApplicantIncome'] + df['CoapplicantIncome']
+    if 'Monthly_Payment' not in df.columns:
+        df['Monthly_Payment'] = df['LoanAmount'] / df['Loan_Amount_Term']
+
+    if df['Total_Income'].iloc[0] < df['Monthly_Payment'].iloc[0]:
+        return 'No Approved'
+
+    prediction = model.predict(df)[0]
+
+    return 'Approved' if prediction == 'Y' else 'No Approved'
+
+`````
 ### predictions/urls.py
 Налаштовує маршрути для додатку `predictions`.
 
@@ -233,156 +379,7 @@ GridSearchCV здійснює пошук найкращих параметрів
   result = predict_with_rule(input_data)
   print(f"Результат прогнозу: {result}")`
   ````
-### loan_prediction.py
 
-Прогнозує рішення про кредит з урахуванням правила співвідношення доходу до щомісячного платежу.
-````
-    def predict_with_rule(input_data, model, X_train_columns):
-    df = pd.DataFrame([input_data])
-
-    df['Monthly_Payment'] = df['LoanAmount'] / df['Loan_Amount_Term']
-
-    if 'Total_Income' not in df.columns:
-        df['Total_Income'] = df['ApplicantIncome'] + df['CoapplicantIncome']
-
-    df = pd.get_dummies(df, drop_first=True)
-
-    missing_cols = list(set(X_train_columns) - set(df.columns))
-    for col in missing_cols:
-        df[col] = 0
-    df = df[X_train_columns]
-
-    if 'Total_Income' not in df.columns:
-        df['Total_Income'] = df['ApplicantIncome'] + df['CoapplicantIncome']
-    if 'Monthly_Payment' not in df.columns:
-        df['Monthly_Payment'] = df['LoanAmount'] / df['Loan_Amount_Term']
-
-    if df['Total_Income'].iloc[0] < df['Monthly_Payment'].iloc[0]:
-        return 'No Approved'
-
-    prediction = model.predict(df)[0]
-
-    return 'Approved' if prediction == 'Y' else 'No Approved'
-
-`````
-## Функції та методи
-
-### Функція `predict`
-
-Обробляє POST та GET запити для прогнозування схвалення кредиту.
-    
-Якщо запит метод POST, функція отримує дані з форми, створює DataFrame
-і виконує прогнозування за допомогою завантаженої моделі.
-Якщо запит метод GET, функція повертає порожню форму.
-    
-Параметри:
-request (HttpRequest): HTTP запит.
-    
-Повертає:
-HttpResponse: Відповідь з результатом прогнозування або форма.
-
-````
-def predict(request):
-    print(f"Метод запиту: {request.method}")
-    if request.method == 'POST':
-        try:
-            print("Отримано POST-запит")
-
-            input_data = {
-                'Loan_ID': 'NA',
-                'Gender': request.POST.get('Gender'),
-                'Married': request.POST.get('Married'),
-                'Dependents': request.POST.get('Dependents'),
-                'Education': request.POST.get('Education'),
-                'Self_Employed': request.POST.get('Self_Employed'),
-                'ApplicantIncome': safe_float(request.POST.get('ApplicantIncome')),
-                'CoapplicantIncome': safe_float(request.POST.get('CoapplicantIncome')),
-                'LoanAmount': safe_float(request.POST.get('LoanAmount')),
-                'Loan_Amount_Term': safe_float(request.POST.get('Loan_Amount_Term')),
-                'Credit_History': safe_float(request.POST.get('Credit_History')),
-                'Property_Area': request.POST.get('Property_Area')
-            }
-            print(f"Вхідні дані: {input_data}")
-
-            for key, value in input_data.items():
-                if value is None or value == '':
-                    return render(request, 'predictions/predict.html', {'error': 'Усі поля '
-                                                                                 'повинні бути заповнені'})
-
-            result = predict_with_rule(input_data, model, X_train_columns)
-            print(f"Результат прогнозування: {result}")
-
-            return render(request, 'predictions/result.html', {'result': result})
-        except Exception as e:
-            print(f"Помилка: {str(e)}")
-            return JsonResponse({'error': str(e)}, status=400)
-    elif request.method == 'GET':
-        print("Отримано GET-запит")
-        return render(request, 'predictions/predict.html')
-    print("Метод запиту не підтримується")
-    return JsonResponse({'error': 'Invalid request method'}, status=405)
-`````
-### Функція safe_float
-
-Конвертує значення у float з перевіркою на помилки.
-
-````
-def safe_float(value):
-    try:
-        return float(value)if value else 0.0
-    except ValueError:
-        return 0.0  # Якщо не вдається перетворити значення в float, повертаємо 0.0
-````
-### Функція feature_importance_view
-
-Відображає графік важливості ознак моделі.
-    
-Завантажує важливість ознак з JSON файлу та створює графік
-за допомогою Plotly. Графік рендериться у HTML шаблоні.
-    
-Параметри:
-request (HttpRequest): HTTP запит.
-    
-Повертає:
-HttpResponse: Відповідь з графіком важливості ознак.
-
-````
- def feature_importance_view(request):
-    print("Функція feature_importance_view викликана")
-    try:
-        feature_importance_path = os.path.join('model', 'feature_importance.json')
-        print(f"Шлях до JSON: {feature_importance_path}")
-           with open(feature_importance_path, 'r') as f:
-            data = json.load(f)
-
-        features = data['features']
-        importances = data['importances']
-
-        fig = go.Figure(
-            go.Bar(
-                x=features,
-                y=importances,
-                marker=dict(color='blue'),
-            )
-        )
-        fig.update_layout(
-            title='Feature Importance',
-            xaxis_title='Features',
-            yaxis_title='Importance',
-            template='plotly_white'
-        )
-
-        plot_html = fig.to_html(full_html=False)
-        print("Графік згенеровано успішно")
-
-        template_path = r'C:\Users\kobza\PycharmProjects\pythonProject2\loan_prediction_project\predictions\templates\predictions\feature_importance.html'
-        print(f"Шлях до шаблону: {template_path}")
-
-        return render(request, template_path, {'plot_html': plot_html})
-    except Exception as e:
-        print(f"Помилка: {str(e)}")
-        return JsonResponse({'error': str(e)}, status=400)`
-````
 ### Тестування
 
 Тестування проекту здійснюється за допомогою модуля Django TestCase.
