@@ -233,16 +233,9 @@ GridSearchCV здійснює пошук найкращих параметрів
   result = predict_with_rule(input_data)
   print(f"Результат прогнозу: {result}")`
   ````
-## Функції та методи
-### Функція `predict_with_rule`
+### loan_prediction.py
 
-    """ 
-    Прогнозує рішення про кредит з урахуванням правила співвідношення доходу до щомісячного платежу.
-    Args: 
-    input_data (dict): Вхідні дані для прогнозування. 
-    Returns:
-    str: 'Approved' або 'No Approved'. 
-    """
+Прогнозує рішення про кредит з урахуванням правила співвідношення доходу до щомісячного платежу.
 ````
     def predict_with_rule(input_data, model, X_train_columns):
     df = pd.DataFrame([input_data])
@@ -272,6 +265,8 @@ GridSearchCV здійснює пошук найкращих параметрів
     return 'Approved' if prediction == 'Y' else 'No Approved'
 
 `````
+## Функції та методи
+
 ### Функція `predict`
 
 Обробляє POST та GET запити для прогнозування схвалення кредиту.
