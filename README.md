@@ -76,22 +76,24 @@
 1. Завантаження даних: Завантаження даних з CSV файлу.
 
 
-  ` data_path = r'../loan_prediction_project/predictions/data/loan_data.csv'
-    data = pd.read_csv(data_path)`
+  ``` data_path = r'../loan_prediction_project/predictions/data/loan_data.csv'
+    data = pd.read_csv(data_path)
+   ```
 
  
 2. Імпорт необхідних бібліотек: pandas, seaborn, matplotlib, os, joblib, json, numpy, scikit-learn.
 3. Обробка відсутніх значень: Видалення записів з відсутніми значеннями.
 
-
-    `data = data.dropna()`
- 
+```
+   data = data.dropna()
+ ```
 4. Додавання нових ознак: Обчислення нових ознак, таких як Income_to_Loan_Ratio, Log_ApplicantIncome, Income_Category.
 
    
-   `data['Income_to_Loan_Ratio'] = data['ApplicantIncome'] / data['LoanAmount']
+   ```data['Income_to_Loan_Ratio'] = data['ApplicantIncome'] / data['LoanAmount']
    data['Log_ApplicantIncome'] = np.log(data['ApplicantIncome'] + 1)
-   data['Income_Category'] = pd.qcut(data['ApplicantIncome'], q=3, labels=['Low', 'Medium', 'High']) `
+   data['Income_Category'] = pd.qcut(data['ApplicantIncome'], q=3, labels=['Low', 'Medium', 'High']) 
+  ```
 Income_to_Loan_Ratio — співвідношення доходу заявника до суми кредиту.
 Log_ApplicantIncome — логарифмований дохід для зменшення розбіжностей між великими та малими значеннями. 
 Income_Category — категоризація доходу на три групи (Low, Medium, High) за допомогою qcut
