@@ -170,11 +170,15 @@ GridSearchCV здійснює пошук найкращих параметрів
 }`
 13. Застосування правила для оновлення прогнозів: Перевірка, чи дохід більший за щомісячний платіж, і 
     оновлення прогнозів на основі цього правила.
+
+
    `X_test['Manual_Override'] = (X_test['Income_to_Loan_Ratio'] > 1).astype(int)
    y_pred_final = [1 if override == 1 else 0 for override, pred in zip(X_test['Manual_Override'], y_pred)]`
 Ручне правило: якщо співвідношення доходу до кредиту більше 1, кредит схвалюється незалежно від моделі. 
  
 14. Виведення фінальних результатів: Виведення оригінальних та оновлених прогнозів.
+
+
   `result = predict_with_rule(input_data)
   print(f"Результат прогнозу: {result}")`
 
@@ -305,13 +309,12 @@ def feature_importance_view(request):
     Повертає:
     HttpResponse: Відповідь з графіком важливості ознак.
     """
-`def feature_importance_view(request):
+ `def feature_importance_view(request):
     print("Функція feature_importance_view викликана")
     try:
         feature_importance_path = os.path.join('model', 'feature_importance.json')
         print(f"Шлях до JSON: {feature_importance_path}")
-
-        with open(feature_importance_path, 'r') as f:
+           with open(feature_importance_path, 'r') as f:
             data = json.load(f)
 
         features = data['features']
@@ -341,7 +344,7 @@ def feature_importance_view(request):
     except Exception as e:
         print(f"Помилка: {str(e)}")
         return JsonResponse({'error': str(e)}, status=400)`
-
+'`''
 ### Тестування
 
 Тестування проекту здійснюється за допомогою модуля Django TestCase.
