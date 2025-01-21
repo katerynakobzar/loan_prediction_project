@@ -272,8 +272,7 @@ GridSearchCV здійснює пошук найкращих параметрів
     return 'Approved' if prediction == 'Y' else 'No Approved'
 `
 ### Функція `predict`
-def predict(request):
-   
+
     """
 
 
@@ -289,8 +288,8 @@ def predict(request):
     Повертає:
     HttpResponse: Відповідь з результатом прогнозування або форма.
     """
-
-`def predict(request):
+````
+def predict(request):
     print(f"Метод запиту: {request.method}")
     if request.method == 'POST':
         try:
@@ -329,23 +328,22 @@ def predict(request):
         return render(request, 'predictions/predict.html')
     print("Метод запиту не підтримується")
     return JsonResponse({'error': 'Invalid request method'}, status=405)
-`
+`````
 ### Функція safe_float
-def safe_float(value):
-   
+
     """
 
     Конвертує значення у float з перевіркою на помилки.
     
     """
-`def safe_float(value):
+````
+def safe_float(value):
     try:
         return float(value)if value else 0.0
     except ValueError:
-        return 0.0  # Якщо не вдається перетворити значення в float, повертаємо 0.0`
-
+        return 0.0  # Якщо не вдається перетворити значення в float, повертаємо 0.0
+````
 ### Функція feature_importance_view
-def feature_importance_view(request):
 
     """
 
@@ -360,7 +358,8 @@ def feature_importance_view(request):
     Повертає:
     HttpResponse: Відповідь з графіком важливості ознак.
     """
- `def feature_importance_view(request):
+````
+ def feature_importance_view(request):
     print("Функція feature_importance_view викликана")
     try:
         feature_importance_path = os.path.join('model', 'feature_importance.json')
@@ -395,7 +394,7 @@ def feature_importance_view(request):
     except Exception as e:
         print(f"Помилка: {str(e)}")
         return JsonResponse({'error': str(e)}, status=400)`
-'`''
+````
 ### Тестування
 
 Тестування проекту здійснюється за допомогою модуля Django TestCase.
@@ -409,8 +408,8 @@ def feature_importance_view(request):
     # Ініціалізація клієнта для тестування HTTP-запитів
     # Путь до моделі машинного навчання
     # Перевірка існування моделі
-
-    `def setUp(self):
+````
+    def setUp(self):
         self.client = Client()
 
         self.model_path = '../loan_prediction_project/loan_prediction_model.pkl'
@@ -418,18 +417,20 @@ def feature_importance_view(request):
         if os.path.exists(self.model_path):
             self.model = joblib.load(self.model_path)
         else:
-            self.model = None`
-
+            self.model = None
+````
   
 ### Функція def test_model_loading(self):
     """Перевірка, чи завантажується модель успішно."""
-    `def test_model_loading(self):
-        self.assertIsNotNone(self.model, "Модель Machine Learning не найдена или не загружена")`
+````
+   def test_model_loading(self):
+        self.assertIsNotNone(self.model, "Модель Machine Learning не найдена или не загружена")
+   ````
 
 ### Функція def test_model_prediction(self):
     """Перевірка, чи робить модель прогнози."""
-
-    `def test_model_prediction(self):
+````
+    def test_model_prediction(self):
         if self.model:
             test_data = pd.DataFrame([{
                 'Loan_ID': 'NA',
@@ -450,11 +451,13 @@ def feature_importance_view(request):
             print(f"Типи даних в DataFrame:\n{test_data.dtypes}")
 
             prediction = self.model.predict(test_data)
-            self.assertIn(prediction[0], ['Y', 'N'], "Некорректное предсказание модели")`
+            self.assertIn(prediction[0], ['Y', 'N'], "Некорректное предсказание модели")
+   ````        
 ### Функція def test_homepage_view(self):
     """Перевірка доступності домашньої сторінки."""
-    
-    `def test_homepage_view(self):
+````
+   def test_homepage_view(self):
         response = self.client.get(reverse('home'))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Loan Prediction")`
+        self.assertContains(response, "Loan Prediction")
+````
