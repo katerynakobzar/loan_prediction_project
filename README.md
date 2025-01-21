@@ -124,7 +124,7 @@ def safe_float(value):
     except ValueError:
         return 0.0  # Якщо не вдається перетворити значення в float, повертаємо 0.0
 ````
-### Функція `feature_importance_view`
+#### Функція `feature_importance_view`
 
 Відображає графік важливості ознак моделі.
     
@@ -395,9 +395,9 @@ GridSearchCV здійснює пошук найкращих параметрів
   ```
 
 ### Функція def setUp(self):
-    # Ініціалізація клієнта для тестування HTTP-запитів
-    # Путь до моделі машинного навчання
-    # Перевірка існування моделі
+Ініціалізація клієнта для тестування HTTP-запитів
+Путь до моделі машинного навчання
+Перевірка існування моделі
 ````
     def setUp(self):
         self.client = Client()
@@ -411,14 +411,14 @@ GridSearchCV здійснює пошук найкращих параметрів
 ````
   
 ### Функція def test_model_loading(self):
-    """Перевірка, чи завантажується модель успішно."""
+Перевірка, чи завантажується модель успішно.
 ````
    def test_model_loading(self):
         self.assertIsNotNone(self.model, "Модель Machine Learning не найдена или не загружена")
    ````
 
 ### Функція def test_model_prediction(self):
-    """Перевірка, чи робить модель прогнози."""
+Перевірка, чи робить модель прогнози.
 ````
     def test_model_prediction(self):
         if self.model:
@@ -444,7 +444,7 @@ GridSearchCV здійснює пошук найкращих параметрів
             self.assertIn(prediction[0], ['Y', 'N'], "Некорректное предсказание модели")
    ````        
 ### Функція def test_homepage_view(self):
-    """Перевірка доступності домашньої сторінки."""
+Перевірка доступності домашньої сторінки.
 ````
    def test_homepage_view(self):
         response = self.client.get(reverse('home'))
