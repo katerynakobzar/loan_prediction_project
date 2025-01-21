@@ -113,7 +113,7 @@ def predict(request):
     print("Метод запиту не підтримується")
     return JsonResponse({'error': 'Invalid request method'}, status=405)
 `````
-### Функція safe_float
+#### Функція `safe_float`
 
 Конвертує значення у float з перевіркою на помилки.
 
@@ -124,7 +124,7 @@ def safe_float(value):
     except ValueError:
         return 0.0  # Якщо не вдається перетворити значення в float, повертаємо 0.0
 ````
-### Функція feature_importance_view
+### Функція `feature_importance_view`
 
 Відображає графік важливості ознак моделі.
     
@@ -214,6 +214,11 @@ HttpResponse: Відповідь з графіком важливості озн
     return 'Approved' if prediction == 'Y' else 'No Approved'
 
 `````
+
+Функція обчислює щомісячний платіж та загальний дохід, нормалізує категоріальні змінні, додає відсутні стовпці
+і застосовує правило, що забезпечує додаткову перевірку платоспроможності заявника перед прийняттям рішення 
+про схвалення кредиту.
+
 ### predictions/urls.py
 Налаштовує маршрути для додатку `predictions`.
 
