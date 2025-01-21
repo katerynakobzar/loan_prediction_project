@@ -77,7 +77,7 @@
 
 
   ` data_path = r'../loan_prediction_project/predictions/data/loan_data.csv'
-      data = pd.read_csv(data_path)`
+    data = pd.read_csv(data_path)`
 
  
 2. Імпорт необхідних бібліотек: pandas, seaborn, matplotlib, os, joblib, json, numpy, scikit-learn.
@@ -95,7 +95,7 @@
 Income_to_Loan_Ratio — співвідношення доходу заявника до суми кредиту.
 Log_ApplicantIncome — логарифмований дохід для зменшення розбіжностей між великими та малими значеннями. 
 Income_Category — категоризація доходу на три групи (Low, Medium, High) за допомогою qcut
-5. 
+
  
 5. Кореляційний аналіз: Аналіз кореляційних зв'язків між числовими ознаками за допомогою heatmap.
 
@@ -105,6 +105,9 @@ Income_Category — категоризація доходу на три груп
   sns.heatmap(corr_matrix, annot=True, fmt='.2f', cmap='coolwarm')
   plt.title('Correlation Matrix')
   plt.show() `
+
+
+
 Вибираються лише числові стовпці.
 Створюється кореляційна матриця, яка показує залежності між числовими ознаками.
 Матриця візуалізується за допомогою теплової карти.
@@ -113,12 +116,12 @@ Income_Category — категоризація доходу на три груп
 6. Обробка категоріальних змінних: Перетворення категоріальних ознак у dummy variables.
 
 
-   `X = data.drop('Loan_Status', axis=1)
-   y = data['Loan_Status']
-   X = pd.get_dummies(X, drop_first=True)
-   X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)`
+    `X = data.drop('Loan_Status', axis=1)
+    y = data['Loan_Status']
+    X = pd.get_dummies(X, drop_first=True)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)`
 Цільова змінна (Loan_Status) відокремлюється від ознак.
-Категоріальні змінні кодуються в one-hot формат за допомогою pd.get_dummies().
+Категоріальні змінні кодуються в one-hot формат за допомогою pd.get_dummies(). 
 Дані діляться на навчальну та тестову вибірки.
 
 
@@ -142,12 +145,14 @@ ColumnTransformer застосовує цей масштабатор до всі
     ('preprocessor', preprocessor),
     ('classifier', RandomForestClassifier(random_state=42))
     ])`
+
+
 Пайплайн автоматизує обробку даних і навчання моделі.
 Використовується RandomForestClassifier для класифікації.
 
  
 9. Визначення параметрів для GridSearchCV: Параметри, які будуть оптимізовані у GridSearchCV
-    Виконання GridSearchCV: Навчання моделі та оптимізація параметрів.
+   Виконання GridSearchCV: Навчання моделі та оптимізація параметрів.
 
 
   `  param_grid = {
@@ -160,6 +165,8 @@ ColumnTransformer застосовує цей масштабатор до всі
      }
     grid_search = GridSearchCV(estimator=pipeline, param_grid=param_grid, cv=5, n_jobs=-1, verbose=2)
     grid_search.fit(X_train, y_train)`
+
+
 param_grid визначає параметри для перебору.
 GridSearchCV здійснює пошук найкращих параметрів моделі через крос-валідацію.
 
@@ -169,7 +176,9 @@ GridSearchCV здійснює пошук найкращих параметрів
 
     `best_pipeline = grid_search.best_estimator_
     joblib.dump(best_pipeline, model_path)`
- Зберігається найкраща модель, знайдена GridSearchCV.
+
+
+Зберігається найкраща модель, знайдена GridSearchCV.
 
 
 11. Збереження важливості ознак: Визначення важливості ознак і збереження їх у JSON файл.
@@ -181,7 +190,9 @@ GridSearchCV здійснює пошук найкращих параметрів
      feature_importance_dict = {'features': feature_names, 'importances': feature_importances.tolist()}
      with open(feature_importance_path, 'w') as f:
     json.dump(feature_importance_dict, f)`
- Витягується важливість ознак для пояснення моделі.Зберігається в JSON-файл.
+
+
+Витягується важливість ознак для пояснення моделі.Зберігається в JSON-файл.
 
  
 12. Прогнозування на тестових даних: Виконання прогнозування на тестових даних.
