@@ -79,7 +79,7 @@ feature_importance_dict = {
     'importances': feature_importances.tolist()
 }
 
-feature_importance_path = os.path.join('model', 'feature_importance.json')
+feature_importance_path = r'loan_prediction_project/predictions/model, feature_importance.json'
 with open(feature_importance_path, 'w') as f:
     json.dump(feature_importance_dict, f)
 

@@ -8,6 +8,7 @@ urlpatterns = [
     path('', include('predictions.urls')),
     path('', lambda request: redirect('predict')),  # Перенаправлення на сторінку передбачення
     path('predict/', include('predictions.urls')),
-    path('', include('predictions.urls'))
+    path('', include('predictions.urls')),
+
 ]
 

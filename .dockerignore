@@ -1,7 +1,11 @@
-__pycache__/
+# .dockerignore
+__pycache__
 *.pyc
 *.pyo
 *.pyd
+
+env
+venv
+ENV
 venv/
-.env
-db.sqlite3
+env/
