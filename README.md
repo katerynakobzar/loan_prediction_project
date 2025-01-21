@@ -102,12 +102,12 @@ Income_Category — категоризація доходу на три груп
 5. Кореляційний аналіз: Аналіз кореляційних зв'язків між числовими ознаками за допомогою heatmap.
 
 
-  `corr_matrix = numeric_data.corr()
+  ```corr_matrix = numeric_data.corr()
   plt.figure(figsize=(12, 8))
   sns.heatmap(corr_matrix, annot=True, fmt='.2f', cmap='coolwarm')
   plt.title('Correlation Matrix')
   plt.show() `
-
+```
 
 
 Вибираються лише числові стовпці.
@@ -117,11 +117,12 @@ Income_Category — категоризація доходу на три груп
  
 6. Обробка категоріальних змінних: Перетворення категоріальних ознак у dummy variables.
 
-
-    `X = data.drop('Loan_Status', axis=1)
+````
+    X = data.drop('Loan_Status', axis=1)
     y = data['Loan_Status']
     X = pd.get_dummies(X, drop_first=True)
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)`
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+   ````
 Цільова змінна (Loan_Status) відокремлюється від ознак.
 Категоріальні змінні кодуються в one-hot формат за допомогою pd.get_dummies(). 
 Дані діляться на навчальну та тестову вибірки.
@@ -129,25 +130,26 @@ Income_Category — категоризація доходу на три груп
 
 7. Попередня обробка числових даних: Створення ColumnTransformer для стандартизації числових ознак.
 
-
- `` ` preprocessor = ColumnTransformer(
+````
+  preprocessor = ColumnTransformer(
     transformers=[
         ('num', StandardScaler(), X_train.columns)
     ],
     remainder='passthrough'`
-   )``
+   )
+   ````
 StandardScaler нормалізує числові ознаки.
 ColumnTransformer застосовує цей масштабатор до всіх стовпців навчального набору.
 
  
 8. Створення пайплайна: Пайплайн, який включає попередню обробку та модель RandomForestClassifier.
 
-
-    `pipeline = Pipeline([
+````
+    pipeline = Pipeline([
     ('preprocessor', preprocessor),
     ('classifier', RandomForestClassifier(random_state=42))
-    ])`
-
+    ])
+````
 
 Пайплайн автоматизує обробку даних і навчання моделі.
 Використовується RandomForestClassifier для класифікації.
@@ -156,8 +158,8 @@ ColumnTransformer застосовує цей масштабатор до всі
 9. Визначення параметрів для GridSearchCV: Параметри, які будуть оптимізовані у GridSearchCV
    Виконання GridSearchCV: Навчання моделі та оптимізація параметрів.
 
-
-  `  param_grid = {
+````
+    param_grid = {
     'classifier__n_estimators': [100, 200],
     'classifier__max_features': ['sqrt'],
     'classifier__max_depth': [10, 20],
@@ -166,8 +168,8 @@ ColumnTransformer застосовує цей масштабатор до всі
     'classifier__bootstrap': [True]
      }
     grid_search = GridSearchCV(estimator=pipeline, param_grid=param_grid, cv=5, n_jobs=-1, verbose=2)
-    grid_search.fit(X_train, y_train)`
-
+    grid_search.fit(X_train, y_train)
+````
 
 param_grid визначає параметри для перебору.
 GridSearchCV здійснює пошук найкращих параметрів моделі через крос-валідацію.
@@ -175,32 +177,32 @@ GridSearchCV здійснює пошук найкращих параметрів
 
 10. Збереження моделі: Збереження навченої моделі у файл з використанням joblib.
 
-
-    `best_pipeline = grid_search.best_estimator_
-    joblib.dump(best_pipeline, model_path)`
-
+````
+    best_pipeline = grid_search.best_estimator_
+    joblib.dump(best_pipeline, model_path)
+````
 
 Зберігається найкраща модель, знайдена GridSearchCV.
 
 
 11. Збереження важливості ознак: Визначення важливості ознак і збереження їх у JSON файл.
 
+````
 
-
-    `feature_importances = best_pipeline.named_steps['classifier'].feature_importances_
-     feature_names = X_train.columns.tolist()
-     feature_importance_dict = {'features': feature_names, 'importances': feature_importances.tolist()}
-     with open(feature_importance_path, 'w') as f:
+    feature_importances = best_pipeline.named_steps['classifier'].feature_importances_
+    feature_names = X_train.columns.tolist()
+    feature_importance_dict = {'features': feature_names, 'importances': feature_importances.tolist()}
+    with open(feature_importance_path, 'w') as f:
     json.dump(feature_importance_dict, f)`
-
+````
 
 Витягується важливість ознак для пояснення моделі.Зберігається в JSON-файл.
 
  
 12. Прогнозування на тестових даних: Виконання прогнозування на тестових даних.
 
-
-`input_data = {
+````
+  input_data = {
     'Loan_ID': 'NA',
     'Gender': 'Male',
     'Married': 'No',
@@ -213,23 +215,24 @@ GridSearchCV здійснює пошук найкращих параметрів
     'Loan_Amount_Term': 360,
     'Credit_History': 1.0,
     'Property_Area': 'Urban'
-}`
+}
+````
 13. Застосування правила для оновлення прогнозів: Перевірка, чи дохід більший за щомісячний платіж, і 
     оновлення прогнозів на основі цього правила.
 
-
-   `X_test['Manual_Override'] = (X_test['Income_to_Loan_Ratio'] > 1).astype(int)
+````
+   X_test['Manual_Override'] = (X_test['Income_to_Loan_Ratio'] > 1).astype(int)
    y_pred_final = [1 if override == 1 else 0 for override, pred in zip(X_test['Manual_Override'], y_pred)]`
 
-
+````
 Ручне правило: якщо співвідношення доходу до кредиту більше 1, кредит схвалюється незалежно від моделі. 
  
 14. Виведення фінальних результатів: Виведення оригінальних та оновлених прогнозів.
 
-
-  `result = predict_with_rule(input_data)
+````
+  result = predict_with_rule(input_data)
   print(f"Результат прогнозу: {result}")`
-
+  ````
 ## Функції та методи
 ### Функція `predict_with_rule`
 
