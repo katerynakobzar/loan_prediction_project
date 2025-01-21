@@ -236,7 +236,6 @@ GridSearchCV здійснює пошук найкращих параметрів
 ## Функції та методи
 ### Функція `predict_with_rule`
 
-
     """ 
     Прогнозує рішення про кредит з урахуванням правила співвідношення доходу до щомісячного платежу.
     Args: 
@@ -244,7 +243,8 @@ GridSearchCV здійснює пошук найкращих параметрів
     Returns:
     str: 'Approved' або 'No Approved'. 
     """
-`def predict_with_rule(input_data, model, X_train_columns):
+````
+    def predict_with_rule(input_data, model, X_train_columns):
     df = pd.DataFrame([input_data])
 
     df['Monthly_Payment'] = df['LoanAmount'] / df['Loan_Amount_Term']
@@ -270,7 +270,8 @@ GridSearchCV здійснює пошук найкращих параметрів
     prediction = model.predict(df)[0]
 
     return 'Approved' if prediction == 'Y' else 'No Approved'
-`
+
+`````
 ### Функція `predict`
 
     """
